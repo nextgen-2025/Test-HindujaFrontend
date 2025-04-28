@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_URL = process.env.NODE_ENV === 'development' ? "http://localhost:4000" : "https://hinduja-backend-production.up.railway.app";
+const API_URL = process.env.NODE_ENV === 'development' ? "http://localhost:8080" : "https://hinduja-backend-production.up.railway.app";
 
 const DoctorSelector = ({ setSelectedDoctor }) => {
   const [doctorsData, setDoctorsData] = useState([]);
