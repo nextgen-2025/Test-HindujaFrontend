@@ -252,7 +252,7 @@ const VisitMemo = () => {
         )} */}
       </div>
 
-      {showCreateForm && (
+      {/* {showCreateForm && (
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-gray-800">Create New Visit Memo</h3>
@@ -317,7 +317,7 @@ const VisitMemo = () => {
             </button>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Active Visit Memos */}
       <div className="bg-white rounded-lg shadow-md p-6">
