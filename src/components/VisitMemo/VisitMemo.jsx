@@ -28,6 +28,10 @@ const VisitMemo = () => {
   const [creating, setCreating] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
 
+  console.log("Active memoe log: ", activeMemos);
+  console.log("Context User Data: ", userData);
+  console.log("Queue data log: ", queueData);
+
   useEffect(() => {
     fetchDepartments();
     if (token) {
