@@ -2,10 +2,10 @@ import React, { useContext, useState } from "react";
 import { assets } from "../assets/assets";
 import { NavLink, useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
+import Notifications from "./Notifications";
 
 const Navbar = () => {
   const navigate = useNavigate();
-
   const [showMenu, setShowMenu] = useState(false);
   const { token, setToken, userData } = useContext(AppContext);
 
@@ -42,28 +42,31 @@ const Navbar = () => {
         </NavLink>
       </ul>
 
-      <div className="flex items-center gap-4 ">
+      <div className="flex items-center gap-4">
         {token && userData ? (
-          <div className="flex items-center gap-2 cursor-pointer group relative">
-            <img className="w-8 rounded-full" src={userData.image} alt="" />
-            <img className="w-2.5" src={assets.dropdown_icon} alt="" />
-            <div className="absolute top-0 right-0 pt-14 text-base font-medium text-gray-600 z-20 hidden group-hover:block">
-              <div className="min-w-48 bg-gray-50 rounded flex flex-col gap-4 p-4">
-                <p
-                  onClick={() => navigate("/my-profile")}
-                  className="hover:text-black cursor-pointer"
-                >
-                  My Profile
-                </p>
-                <p
-                  onClick={() => navigate("/my-appointments")}
-                  className="hover:text-black cursor-pointer"
-                >
-                  My Appointments
-                </p>
-                <p onClick={logout} className="hover:text-black cursor-pointer">
-                  Logout
-                </p>
+          <div className="flex items-center gap-2">
+            <Notifications />
+            <div className="flex items-center gap-2 cursor-pointer group relative">
+              <img className="w-8 rounded-full" src={userData.image} alt="" />
+              <img className="w-2.5" src={assets.dropdown_icon} alt="" />
+              <div className="absolute top-0 right-0 pt-14 text-base font-medium text-gray-600 z-20 hidden group-hover:block">
+                <div className="min-w-48 bg-gray-50 rounded flex flex-col gap-4 p-4">
+                  <p
+                    onClick={() => navigate("/my-profile")}
+                    className="hover:text-black cursor-pointer"
+                  >
+                    My Profile
+                  </p>
+                  <p
+                    onClick={() => navigate("/my-appointments")}
+                    className="hover:text-black cursor-pointer"
+                  >
+                    My Appointments
+                  </p>
+                  <p onClick={logout} className="hover:text-black cursor-pointer">
+                    Logout
+                  </p>
+                </div>
               </div>
             </div>
           </div>
