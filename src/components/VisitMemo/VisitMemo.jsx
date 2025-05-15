@@ -28,7 +28,7 @@ const VisitMemo = () => {
   const [creating, setCreating] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
 
-  console.log("Active memoe log: ", activeMemos);
+  console.log("Active memos log: ", activeMemos);
   console.log("Context User Data: ", userData);
   console.log("Queue data log: ", queueData);
 
@@ -138,6 +138,7 @@ const VisitMemo = () => {
   };
 
   const joinDepartmentQueue = async (memoId, departmentId) => {
+    console.log("Dept. ID Queue: ", departmentId);
     if (!token) {
       toast.warning("Please login to join the queue");
       return;
@@ -207,6 +208,8 @@ const VisitMemo = () => {
 
   // Update fetchDepartmentQueue to use the new processing function
   const fetchDepartmentQueue = async (departmentId) => {
+    console.log("fetchDept Dept. ID: ", departmentId);
+
     try {
       setLoading(true);
       const response = await axios.get(
