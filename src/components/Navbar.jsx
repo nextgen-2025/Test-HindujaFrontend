@@ -25,19 +25,19 @@ const Navbar = () => {
       />
       <ul className="md:flex items-start gap-5 font-medium hidden">
         <NavLink to="/">
-          <li className="py-1">HOME</li>
+          <li className="py-1">Home</li>
           <hr className="border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden" />
         </NavLink>
-        <NavLink to="/doctors">
-          <li className="py-1">ALL DOCTORS</li>
+        <NavLink to="/visit-memo">
+          <li className="py-1">Visit Memo</li>
           <hr className="border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden" />
         </NavLink>
         <NavLink to="/about">
-          <li className="py-1">ABOUT</li>
+          <li className="py-1">About</li>
           <hr className="border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden" />
         </NavLink>
         <NavLink to="/contact">
-          <li className="py-1">CONTACT</li>
+          <li className="py-1">Contact</li>
           <hr className="border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden" />
         </NavLink>
       </ul>

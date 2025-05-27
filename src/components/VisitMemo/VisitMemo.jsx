@@ -27,6 +27,7 @@ const VisitMemo = () => {
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showPaymentPopup, setShowPaymentPopup] = useState(false);
 
   console.log("Active memos log: ", activeMemos);
   console.log("Context User Data: ", userData);
@@ -144,15 +145,20 @@ const VisitMemo = () => {
       return;
     }
 
+    // Check payment status before joining queue
+    if (!userData?.hasPaid) {
+      setShowPaymentPopup(true);
+      return;
+    }
+
     try {
       const response = await axios.post(
         `${backendUrl}/api/departments/${departmentId}/join-queue`,
-
         {
           userId: userData._id,
           patientName: userData.name,
           memoId,
-          departmentCode: departmentId, // Add this line to handle string IDs
+          departmentCode: departmentId,
         },
         { headers: { token } }
       );
@@ -162,7 +168,6 @@ const VisitMemo = () => {
       if (response.data.success) {
         toast.success("Successfully joined the queue");
         fetchActiveMemos();
-        // Fetch updated queue data
         await fetchDepartmentQueue(departmentId);
       } else {
         toast.error(response.data.message);
@@ -263,101 +268,44 @@ const VisitMemo = () => {
           <FaClipboardList className="mr-2 text-blue-600" />
           Visit Memo
         </h2>
-        {/* {!showCreateForm && (
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center"
-          >
-            <FaClipboardList className="mr-2" />
-            Create New Visit Memo
-          </button>
-        )} */}
       </div>
 
-      {/* {showCreateForm && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium text-gray-800">
-              Create New Visit Memo
-            </h3>
-            <button
-              onClick={() => {
-                setShowCreateForm(false);
-                setSelectedDepartments([]);
-              }}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              Cancel
-            </button>
-          </div>
-
-          <p className="text-sm text-gray-600 mb-4">
-            Select the departments you need to visit today:
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
-            {departments.map((dept) => (
-              <div
-                key={dept._id}
-                onClick={() => handleDepartmentSelect(dept._id)}
-                className={`p-3 rounded-md cursor-pointer transition-all flex items-center ${
-                  selectedDepartments.includes(dept._id)
-                    ? "bg-blue-100 border-l-4 border-blue-500"
-                    : "bg-gray-50 hover:bg-gray-100"
-                }`}
+      {/* Payment overlay */}
+      {showPaymentPopup && !userData?.hasPaid && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Payment Required</h3>
+            <p className="text-gray-600 mb-6">
+              Please complete the payment to access visit memos and join queues.
+            </p>
+            <div className="bg-gray-50 p-4 rounded-md mb-6">
+              <p className="text-gray-700 font-medium">Registration Fee: ₹500</p>
+              <p className="text-sm text-gray-500">One-time payment for all services</p>
+            </div>
+            <div className="flex space-x-4">
+              <button
+                onClick={() => {
+                  if (userData) {
+                    userData.hasPaid = true;
+                    toast.success("Payment successful!");
+                    setShowPaymentPopup(false);
+                    fetchActiveMemos();
+                  }
+                }}
+                className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
               >
-                <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center mr-3">
-                  <FaHospital className="text-blue-600" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-800">{dept.name}</h4>
-                  <p className="text-xs text-gray-500">{dept.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex justify-end">
-            <button
-              onClick={createVisitMemo}
-              disabled={creating || selectedDepartments.length === 0}
-              className={`px-4 py-2 rounded-md text-white flex items-center ${
-                creating || selectedDepartments.length === 0
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
-              }`}
-            >
-              {creating ? (
-                <>
-                  <svg
-                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Creating...
-                </>
-              ) : (
-                <>Create Visit Memo</>
-              )}
-            </button>
+                Pay Now
+              </button>
+              <button
+                onClick={() => setShowPaymentPopup(false)}
+                className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
-      )} */}
+      )}
 
       {/* Active Visit Memos */}
       <div className="bg-white rounded-lg shadow-md p-6">
@@ -372,7 +320,10 @@ const VisitMemo = () => {
         ) : activeMemos.length > 0 ? (
           <div className="space-y-6">
             {activeMemos.map((memo) => (
-              <div key={memo._id} className="border rounded-lg overflow-hidden">
+              <div
+                key={memo._id}
+                className="border rounded-lg overflow-hidden"
+              >
                 <div className="bg-gray-50 p-4 border-b flex justify-between items-center">
                   <div>
                     <div className="flex items-center">
@@ -405,9 +356,7 @@ const VisitMemo = () => {
                       <div key={index} className="rounded-md overflow-hidden">
                         <div
                           className="flex items-center justify-between p-3 bg-gray-50 cursor-pointer hover:bg-gray-100"
-                          onClick={() =>
-                            handleDepartmentClick(dept.departmentId)
-                          }
+                          onClick={() => handleDepartmentClick(dept.departmentId)}
                         >
                           <div className="flex items-center">
                             {dept.isVisited ? (
@@ -427,7 +376,10 @@ const VisitMemo = () => {
                             </div>
                           </div>
                           <div className="text-sm text-gray-500">
-                            Current Queue Size: {queueData && expandedDept === dept.departmentId ? queueData.currentQueueSize : '-'}
+                            Current Queue Size:{" "}
+                            {queueData && expandedDept === dept.departmentId
+                              ? queueData.currentQueueSize
+                              : "-"}
                           </div>
                           <div className="flex items-center">
                             {dept.visitId ? (
@@ -436,10 +388,7 @@ const VisitMemo = () => {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  joinDepartmentQueue(
-                                    memo._id,
-                                    dept.departmentId
-                                  );
+                                  joinDepartmentQueue(memo._id, dept.departmentId);
                                 }}
                                 className="px-3 py-1 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700 transition-colors"
                               >
@@ -464,7 +413,6 @@ const VisitMemo = () => {
                                       <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
                                         Position
                                       </th>
-                                      {/* <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Token</th> */}
                                       <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
                                         Patient
                                       </th>
@@ -479,20 +427,20 @@ const VisitMemo = () => {
                                   <tbody className="bg-white divide-y divide-gray-200">
                                     {queueData && queueData.queue ? (
                                       queueData.queue.map((patient) => (
-                                        <tr 
+                                        <tr
                                           key={patient.tokenNumber}
                                           className={`${
                                             patient.patientId === userData.patientId
-                                              ? 'bg-blue-50 border-l-4 border-blue-500' 
-                                              : ''
+                                              ? "bg-blue-50 border-l-4 border-blue-500"
+                                              : ""
                                           }`}
                                         >
                                           <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
                                             {patient.position}
                                           </td>
                                           <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
-                                            {patient.patientId === userData.patientId 
-                                              ? 'You'
+                                            {patient.patientId === userData.patientId
+                                              ? "You"
                                               : patient.patientId}
                                           </td>
                                           <td className="px-4 py-2 whitespace-nowrap text-sm">
@@ -505,7 +453,10 @@ const VisitMemo = () => {
                                       ))
                                     ) : (
                                       <tr>
-                                        <td colSpan="4" className="text-center py-4 text-gray-500">
+                                        <td
+                                          colSpan="4"
+                                          className="text-center py-4 text-gray-500"
+                                        >
                                           No queue data available
                                         </td>
                                       </tr>
@@ -541,6 +492,7 @@ const VisitMemo = () => {
           </div>
         )}
       </div>
+      
     </div>
   );
 };
